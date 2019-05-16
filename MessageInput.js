@@ -7,44 +7,8 @@
  */
 
 import React, { Component } from "react";
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  TouchableOpacity,
-  Modal
-} from "react-native";
-import {
-  Label,
-  Button,
-  Container,
-  Content,
-  Card,
-  CardItem,
-  Input,
-  Item
-} from "native-base";
-import firebase from "react-native-firebase";
-import type { RemoteMessage } from "react-native-firebase";
-import axios from "axios";
-
-const localDB = axios.create({
-  baseURL: "http://192.168.1.128:3333",
-  timeout: 1000,
-  headers: { "Content-Type": "application/json" }
-});
-
-const firebaseAPI = axios.create({
-  baseURL: "https://fcm.googleapis.com/fcm",
-  timeout: 1000,
-  headers: {
-    Authorization:
-      "key=AAAAwIc77NY:APA91bGw-BDKM4qG7a3BeWWiG_4iv1wYVqoDbcxaLbZ11HDidtznpBiocmTsusfzzkhzQFR_YNORJcrhFUsTKDXr_Qcneov6rvFcFMrKQJYfGVUterQo5m8FCBJp9stR_Ix3sLgCeMVU",
-    "Content-Type": "application/json"
-  }
-});
+import { StyleSheet, Text, View } from "react-native";
+import { Button, Container, Content, Card, CardItem } from "native-base";
 
 type Props = {};
 export default class App extends Component<Props> {
@@ -52,71 +16,32 @@ export default class App extends Component<Props> {
     super(props);
 
     this.state = {
-      tokens: [],
-      modalVisible: "false",
       title: "",
       body: ""
     };
   }
 
-  async componentDidMount() {
-    this.checkPermission();
-    this.checkToken();
-    this.createNotificationListener();
-    this.createNotificationOpenedListener();
-  }
-  onTitleChanged = text => {
-    this.setState({ title: text });
-  };
-
-  onBodyChanged = text => {
-    this.setState({ body: text });
-  };
-
+  componentDidMount() {}
   render() {
-    localDB.get("/tokenData").then(res => {
-      const tokens = res.data.data;
-      this.setState({
-        tokens: tokens
-      });
-    });
     return (
       <Container>
         <Content>
           <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           >
-            <Text style={{ fontSize: 24, margin: 12 }}>Notification App</Text>
-            <Card>
-              <CardItem>
-                <Item floatingLabel>
-                  <Label>Title</Label>
-                  <Input
-                    onChangeText={text => this.onTitleChanged(text)}
-                    value={this.state.title}
-                  />
-                </Item>
-              </CardItem>
-              <CardItem>
-                <Item floatingLabel>
-                  <Label>Body</Label>
-                  <Input
-                    onChangeText={text => this.onBodyChanged(text)}
-                    value={this.state.body}
-                  />
-                </Item>
-              </CardItem>
-            </Card>
-
+            <Text style={{ fontSize: 24 }}>Notification App</Text>
             <Text>Select Recipient:</Text>
             <FlatList
-              style={{ margin: 12, width: 330, height: 200 }}
+              style={{ margin: 12, width: 330 }}
               data={this.state.tokens}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={this.callFCM.bind(this, item.token)}>
                   <Card>
                     <CardItem>
                       <Text style={{ fontSize: 18 }}>{item.name}</Text>
+                    </CardItem>
+                    <CardItem>
+                      <Text style={{ fontSize: 14 }}>{item.token}</Text>
                     </CardItem>
                   </Card>
                 </TouchableOpacity>
@@ -127,16 +52,11 @@ export default class App extends Component<Props> {
       </Container>
     );
   }
-  async componentWillUnmount() {
-    this.createNotificationListener();
-    this.createNotificationOpenedListener();
-  }
-
   async callFCM(token) {
     await firebaseAPI
       .post("/send", {
         to: token,
-        data: { title: this.state.title, body: this.state.body },
+        data: { title: "Notification Arrived", body: "congrats" },
         priority: "high"
       })
       .then(res => {
