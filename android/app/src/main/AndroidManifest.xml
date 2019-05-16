@@ -31,11 +31,11 @@
         </intent-filter>
       </service>
 
-      <!-- <service android:name="io.invertase.firebase.messaging.RNFirebaseInstanceIdService">
+      <service android:name="io.invertase.firebase.messaging.RNFirebaseInstanceIdService">
         <intent-filter>
           <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
         </intent-filter>
-      </service> -->
+      </service>
 
       <service android:name="io.invertase.firebase.messaging.RNFirebaseBackgroundMessagingService" />
 
